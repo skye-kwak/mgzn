@@ -42,7 +42,7 @@ Text.defaultProps = {
   size: "10px",
   margin: false,
   inline: false,
-  type: false,
+  type: null,
 };
 
 const P = styled.p`

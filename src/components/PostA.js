@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Image, Text } from "../element/IndexOfElements";
+import { Grid, Image, Text } from "../elements";
 
 const PostA = (props) => {
 	return (

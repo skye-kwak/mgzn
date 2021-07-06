@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Text, Button, Input } from "../element/IndexOfElements"
+import { Grid, Text, Button, Input } from "../elements"
 import styled from "styled-components";
 
 const Upload = (props) => {

@@ -1,28 +1,29 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Text, Grid } from "../element/IndexOfElements";
+import { Text, Grid } from ".";
 
 const Input = (props) => {
-	const { label, placeholder, _onChange, type, multiline, name, id } = props;
-	const styles = {
-    label: label, 
-    placeholder: placeholder, 
-    onChange: _onChange, 
-    type: type,
-    multiline: multiline,
-		name: name,
-		id: id,
-  };
+	const { 
+		label, 
+		placeholder, 
+		_onChange, 
+		type, 
+		multiline, 
+		name, 
+		id, 
+		value,
+		is_enterPressed,
+    onSubmit, 
+	} = props;
 
 	if (type ==="radio"){
 		return (
 			<Grid>
-				<ElementRadio {...styles} />
+				<ElementRadio/>
 			</Grid>
 		);
 	}
-
 
 	if (multiline){
 		return (
@@ -30,7 +31,10 @@ const Input = (props) => {
 				{label && <Text margin="0px">{label}</Text>}
 				<ElementTextarea
 					rows={6}
-					{...styles}
+          placeholder={placeholder}
+          onChange={_onChange}
+					name={name}
+					id={id}
 				></ElementTextarea>
 			</Grid>
 		);
@@ -40,7 +44,9 @@ const Input = (props) => {
 		<React.Fragment>
 			<Grid>
 				{label && <Text margin="0px">{label}</Text>}
-				<ElementInput {...styles} />
+				<ElementInput
+					type={type} placeholder={placeholder} onChange={_onChange} name={name}
+					id={id} />
 			</Grid>
 		</React.Fragment>
 	);
@@ -48,13 +54,15 @@ const Input = (props) => {
 
 Input.defaultProps = {
 	multiline: false,
-	label: null,
+	label: "",
 	placeholder: "",
 	type: "text",
 	value: "",
 	_onChange: () => {},
 	name: null,
 	id: null,
+	is_enterPressed: false,
+  onSubmit: () => {},
 };
 
 const ElementTextarea = styled.textarea`

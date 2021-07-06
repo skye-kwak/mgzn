@@ -6,11 +6,26 @@ import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from "connected-react-router";
 import { history } from '../redux/configStore';
 //-- pages --//
-import { UserSignup, UserLogin, PostList, PostWrite, PostDetail, NotFound, MyPage } from "../page/IndexOfPages";
-import Header from '../component/Header';
-
+import { UserSignup, UserLogin, PostList, PostWrite, PostDetail, NotFound, MyPage } from "../pages";
+import Header from '../components/Header';
+//-- redux --//
+import { useDispatch } from "react-redux";
+import { actionCreators as userActions } from "../redux/modules/user"
+//-- user auth --//
+import { apiKey } from "./firebase";
 
 function App() {
+  // 로그인 상태 유지
+  const dispatch = useDispatch();
+  const _session_key = `firebase:authUser:${apiKey}:[DEFAULT]`;
+  const is_session = sessionStorage.getItem(_session_key) ? true : false;
+
+  React.useEffect(() => {
+    if (is_session) {
+      dispatch(userActions.checkLoggedInFB());
+    }
+  }, []);
+
   return (
     <React.Fragment>
       <Header />

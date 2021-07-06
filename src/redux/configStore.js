@@ -2,12 +2,14 @@ import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import { createBrowserHistory } from "history";
 import { connectRouter } from "connected-react-router";
+// modules
+import user from "./modules/user";
 
-//browser history
+//export history
 export const history = createBrowserHistory();
 
 const rootReducer = combineReducers({
-  // user: User,
+  user: user,
   // post: Post,
   // image: Image,
   router: connectRouter(history),
@@ -23,6 +25,7 @@ if (env === "development") {
   middlewares.push(logger);
 }
 
+//redux devTools
 const composeEnhancers =
   typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
@@ -30,8 +33,9 @@ const composeEnhancers =
       })
     : compose;
 
-    const enhancer = composeEnhancers(applyMiddleware(...middlewares));
+// compose enhancers
+const enhancer = composeEnhancers(applyMiddleware(...middlewares));
 
-    let store = (initialStore) => createStore(rootReducer, enhancer);
-
-    export default store();
+// export store
+let store = (initialStore) => createStore(rootReducer, enhancer);
+export default store();
