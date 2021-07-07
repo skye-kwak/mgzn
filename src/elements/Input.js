@@ -31,6 +31,7 @@ const Input = (props) => {
 				{label && <Text margin="0px">{label}</Text>}
 				<ElementTextarea
 					rows={6}
+					value={value}
           placeholder={placeholder}
           onChange={_onChange}
 					name={name}

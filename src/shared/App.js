@@ -1,6 +1,9 @@
 import React from 'react';
 //-- style --//
 import './App.css';
+//-- components --//
+import { Grid, Button } from '../elements';
+import Permit from './Permit';
 //-- route --//
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from "connected-react-router";
@@ -28,19 +31,27 @@ function App() {
 
   return (
     <React.Fragment>
-      <Header />
-      <ConnectedRouter history={history}> 
-        <Switch>
-          <Route exact path="/" component={PostList} />
-          <Route exact path="/mypage" component={MyPage} />
-          <Route exact path="/write" component={PostWrite} />
-          <Route exact path="/write/:id" component={PostWrite} />
-          <Route exact path="/post/:id" component={PostDetail} />
-          <Route exact path="/signup" component={UserSignup} />
-          <Route exact path="/login" component={UserLogin} />
-          <Route component={NotFound} />
-        </Switch>
-      </ConnectedRouter>
+      <Grid>
+        <ConnectedRouter history={history}> 
+          <Header />
+          <Switch>
+            <Route exact path="/" component={PostList} />
+            <Route exact path="/mypage" component={MyPage} />
+            <Route exact path="/write" component={PostWrite} />
+            <Route exact path="/write/:id" component={PostWrite} />
+            <Route exact path="/post/:id" component={PostDetail} />
+            <Route exact path="/signup" component={UserSignup} />
+            <Route exact path="/login" component={UserLogin} />
+            <Route component={NotFound} />
+          </Switch>
+        </ConnectedRouter>
+      </Grid>
+      <Permit>
+        <Button 
+          is_float
+          text="+"
+          _onClick={() => {history.push("/write")}} />
+			</Permit>
     </React.Fragment>
     
   );
