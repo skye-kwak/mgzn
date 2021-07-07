@@ -5,6 +5,8 @@ import { firestore, storage } from "../../shared/firebase";
 import firebase from "firebase/app";
 // insert dt
 import moment from "moment";
+// imageActions for uploading image
+import { actionCreators as imageActions } from "./image";
 
 // init actions
 const SET_POST = "SET_POST";
@@ -45,9 +47,9 @@ const initialPost = {
 	// 	user_id: "user_id",
 	//  user_email: "user@email.com",
 	// 	user_name: "user_name",
-	// 	user_profile: "https://firebasestorage.googleapis.com/v0/b/react-…=media&token=7b7dec91-e2ef-4493-943a-a7e60fc1cba6",
+	// 	user_profile: "https://firebasestorage.googleapis.com/v0/b/react-assignment-27df2.appspot.com/o/images%2Fyana_hurskaya-HpQFPnCK7_A-unsplash.jpg?alt=media&token=7b7dec91-e2ef-4493-943a-a7e60fc1cba6",
 	// },
-	image_url: "https://firebasestorage.googleapis.com/v0/b/react-…=media&token=7b7dec91-e2ef-4493-943a-a7e60fc1cba6",
+	image_url: "https://mean0images.s3.ap-northeast-2.amazonaws.com/4.jpeg",
 	contents: "",
 	likes_count: 0,
 	layout_type: "a",
@@ -93,6 +95,7 @@ const getPostFB = () => {
 const createPostFB = (contents = "") => {
 	return function (dispatch, getState, { history }) {
 		const postDB = firestore.collection("mgzn_post");
+		//현재 로그인 한 작성자 정보 가져오기
 		const _user = getState().user.user;
 		//db에 저장할 사용자 정보
 		const user_info ={
@@ -107,23 +110,49 @@ const createPostFB = (contents = "") => {
       contents: contents,//param
       insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
     };
+		//프리뷰에 띄운 이미지 가져오기
+		const _image = getState().image.preview;
+		// console.log(_image);
+    // console.log(typeof _image);
+		if(!_image){
+			window.alert('이미지가 필요해요!');
+			return;
+		}
+		//파일 이름 유저 id, 현재 시간 밀리초로 넣어줌
+		const _upload = storage
+      .ref(`images/${user_info.user_id}_${new Date().getTime()}`)
+      .putString(_image, "data_url");
 
-		postDB.add({...user_info, ..._post}).then((doc) => {
-			// db에 id 추가하기
-			// 포스트는 단일 도큐먼트로 db에 들어가게 됨
-			let post = {user_info, ..._post, id: doc.id};
-			//리덕스에 넣기
-			dispatch(createPost(post));
-			history.replace("/");
-
-	}).catch((err) => {
-			window.alert("post 작성에 실패했습니다.");
-			console.log("post 작성에 실패했습니다.", err);
-	});
-
+		_upload.then((snapshot) => {
+			snapshot.ref.getDownloadURL()
+				.then((url) => {
+					//console.log(url);
+					return url;
+				})
+				.then((url) => {
+					//이미지 업로드가 끝나고 나서 포스트를 올려줌, 게시글만 올라가지 않도록 - 흐름 이해하기
+					postDB.add({...user_info, ..._post, image_url: url}).then((doc) => {
+						// db에 id 추가하기
+						// 포스트는 단일 도큐먼트로 db에 들어가게 됨
+						let post = {user_info, ..._post, id: doc.id, image_url: url};
+						//리덕스에 넣기
+						dispatch(createPost(post));
+						history.replace("/");
+						//set preview null;
+						dispatch(imageActions.setPreview(null));
+				})
+				.catch((err) => {
+					window.alert("앗! 포스트 작성에 문제가 있어요!");
+					console.log("post 작성에 실패했어요!", err);
+				});
+			})
+			.catch((err) => {
+				window.alert("앗! 이미지 업로드에 문제가 있어요!");
+				console.log("앗! 이미지 업로드에 문제가 있어요!", err);
+			});
+		});
 	};
 };
-
 
 // reducers
 export default handleActions(

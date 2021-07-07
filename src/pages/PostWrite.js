@@ -11,7 +11,7 @@ const PostWrite = (props) => {
 	// 로그인 여부 체크하기
   const is_loggedIn = useSelector((state) => state.user.is_loggedIn);
 	const { history } = props;
-	// useState ; setState(인풋 입력값)
+	// useState ; setState(인풋 텍스트필드 입력값)
 	const [contents, setContents] = React.useState('');
 	const changedContents = (e) => {setContents(e.target.value);};
 	// useState; setState(레이아웃형식)
@@ -21,6 +21,8 @@ const PostWrite = (props) => {
 	const createPost = () => {
 		dispatch(postActions.createPostFB(contents));
 	}
+	// Preview
+	const preview = useSelector((state) => state.image.preview)
 
 	if (!is_loggedIn) {
     return (
@@ -54,11 +56,11 @@ const PostWrite = (props) => {
 					multiline 
 					type="text"/>
 				<Upload />
-				<Grid is_flex>
+				{/* <Grid is_flex >
 					<Input type="radio" name="layout" id="layout1"/><label htmlFor="layout1">layout1</label>
 					<Input type="radio" name="layout" id="layout2"/><label htmlFor="layout2">layout2</label>
 					<Input type="radio" name="layout" id="layout3"/><label htmlFor="layout3">layout3</label>
-				</Grid>
+				</Grid> */}
 			</Grid>
 			{/* <Grid padding="16px">
         <Input
@@ -72,7 +74,9 @@ const PostWrite = (props) => {
 			
 			<Grid>
 			<Text type="heading" bold size="1.0rem">PREVIEW</Text>
-				<Image shape="square"/>
+				<Image 
+					shape="square"
+					src={ preview ? preview : "https://firebasestorage.googleapis.com/v0/b/react-assignment-27df2.appspot.com/o/images%2Fyana_hurskaya-HpQFPnCK7_A-unsplash.jpg?alt=media&token=7b7dec91-e2ef-4493-943a-a7e60fc1cba6"}/>
 			</Grid>
 			<Grid padding="16px">	
 				<Button 
