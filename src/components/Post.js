@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, Image, Text } from "../elements";
 
-const PostA = (props) => {
+const Post = (props) => {
 	return (
 		<React.Fragment>
       <Grid>
@@ -33,4 +33,19 @@ const PostA = (props) => {
 	)
 }
 
-export default PostA;
+Post.defaultProps = {
+  id: null,
+  user_info: {
+    user_email: "",
+    user_name: "",
+    user_profile: "",
+  },
+  image_url: "",
+  contents: "",
+  like_cnt: 0,
+  layout_type: "a",
+  insert_dt: "2021-07-01 00:00:00",
+  is_myPost: false,
+};
+
+export default Post;

@@ -9,7 +9,7 @@ const PostWrite = (props) => {
 				<Text type="heading" bold size="2.0rem">SHARE•YOUR•MOMENTS</Text>
 			</Grid>
 			<Grid padding="0px 16px">
-				<Input placeholder="" multiline type="text"/>
+				<Input placeholder="게시글 작성" multiline type="text"/>
 				<Upload />
 				<Grid is_flex>
 					<Input type="radio" name="layout" id="layout1"/><label htmlFor="layout1">layout1</label>

@@ -1,9 +1,11 @@
 import React from "react";
+import { Post } from "../components"
+// import { CommentList, CommentWrite } from "../components"
 
 const PostDetail = (props) => {
 	return (
 		<React.Fragment>
-			Page_PostDetail
+			<Post />
 		</React.Fragment>
 	)
 }

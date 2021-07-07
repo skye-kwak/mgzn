@@ -13,13 +13,13 @@ const Upload = (props) => {
 
 export default Upload;
 
-const LabelButton = styled.label`
-  display: inline-block;
-  padding: 10px 20px;
-  color: #999;
-  vertical-align: middle;
-  background-color: #fdfdfd;
-  cursor: pointer;
-  border: 1px solid #ebebeb;
-  border-radius: 5px;
-`;
+// const LabelButton = styled.label`
+//   display: inline-block;
+//   padding: 10px 20px;
+//   color: #999;
+//   vertical-align: middle;
+//   background-color: #fdfdfd;
+//   cursor: pointer;
+//   border: 1px solid #ebebeb;
+//   border-radius: 5px;
+// `;
