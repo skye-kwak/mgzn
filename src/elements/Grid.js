@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Grid = (props) => {
-  const { is_flex, width, margin, padding, bg_color, children, center, _onClick } = props;
+  const { is_flex, width, margin, padding, bg_color, children, center, _onClick, is_myPost } = props;
 
   const styles = {
       is_flex: is_flex,

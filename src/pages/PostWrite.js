@@ -8,21 +8,45 @@ import { actionCreators as imageActions } from "../redux/modules/image";
 
 const PostWrite = (props) => {
 	const dispatch = useDispatch();
-	// 로그인 여부 체크하기
-  const is_loggedIn = useSelector((state) => state.user.is_loggedIn);
 	const { history } = props;
-	// useState ; setState(인풋 텍스트필드 입력값)
-	const [contents, setContents] = React.useState('');
-	const changedContents = (e) => {setContents(e.target.value);};
+	
+  const is_loggedIn = useSelector((state) => state.user.is_loggedIn);
+	const post_list = useSelector((state) => state.post.list);
+	// 글 수정 위해 진입했는지 확인
+	const post_id = props.match.params.id;
+  const is_editing = post_id ? true : false;
+	let _post = is_editing ? post_list.find((post) => post.id === post_id) : null;
+	// useState ; setState(인풋 텍스트필드 입력값), _post? 수정시 기존 작성내용 : 신규작성 비어있는 필드
+	const [contents, setContents] = React.useState(_post ? _post.contents : "");
 	// useState; setState(레이아웃형식)
 	const [layout_type, setLayoutType] = React.useState('');
-  const changedLayoutType = (e) => {setLayoutType(e.target.value);};
-	// 글 작성버튼과 리덕스 미들웨어 연동
+
+	const changedContents = (e) => {setContents(e.target.value);};
+	const changedLayoutType = (e) => {setLayoutType(e.target.value);};
+	
+	// 함수; 글 작성하기, 리덕스 미들웨어 연동
 	const createPost = () => {
-		dispatch(postActions.createPostFB(contents));
+		dispatch(postActions.createPostFB(contents, layout_type));
 	}
-	// Preview
+	// 함수; 글 수정하기, 리덕스 미들웨어 연동
+	const updatePost = () => {
+		dispatch(postActions.updatePostFB(post_id, {contents: contents}));
+	}
+
+	// image Preview
 	const preview = useSelector((state) => state.image.preview)
+	
+	React.useEffect(() => {
+    if (is_editing && !_post) {
+      console.log("포스트 정보가 없어요!");
+      history.goBack();
+      return;
+    }
+		//작성했던 image 가져와서 넣어주기
+    if (is_editing) {
+      dispatch(imageActions.setPreview(_post.image_url));
+    }
+  }, []);
 
 	if (!is_loggedIn) {
     return (
@@ -78,11 +102,19 @@ const PostWrite = (props) => {
 					shape="square"
 					src={ preview ? preview : "https://firebasestorage.googleapis.com/v0/b/react-assignment-27df2.appspot.com/o/images%2Fyana_hurskaya-HpQFPnCK7_A-unsplash.jpg?alt=media&token=7b7dec91-e2ef-4493-943a-a7e60fc1cba6"}/>
 			</Grid>
-			<Grid padding="16px">	
-				<Button 
-					margin="20px 0px" 
-					text="SAVE"
-					_onClick={createPost} />
+
+			<Grid padding="16px">
+				{is_editing ? (
+					<Button 
+						margin="20px 0px" 
+						text="UPDATE" 
+						_onClick={updatePost} />
+				) : (
+					<Button 
+						margin="20px 0px" 
+						text="SAVE" 
+						_onClick={createPost} />
+					)}	
 			</Grid>
 		</React.Fragment>
 	)

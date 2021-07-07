@@ -26,6 +26,14 @@ const Button = (props) => {
 			</React.Fragment>
 		);
 	}
+
+	if ( type === "smallBtn") {
+		return (
+			<React.Fragment>
+				<PostSmallButton {...styles} onClick={_onClick}>{text? text : children}</PostSmallButton>
+			</React.Fragment>
+		)
+	}
 	
 	return (
 		<React.Fragment>
@@ -87,19 +95,25 @@ const MenuButton = styled.button`
 	
 `;
 
-//-- image upload & disabled upload--//
-const UploadButton = styled.button`
+//-- post update & delete button --//
+const PostSmallButton = styled.button`
 	width: ${(props) => props.width};
-	background-color: #383D38;
-	color: #E5E5E5;
+	background-color: #E5E5E5;
+	color: #383D38;
 	padding: ${(props) => props.padding};
 	box-sizing: border-box;
-	border: none;
-	font-family: "Montserrat";
-	font-weight: 400;
+	border: 1px solid #E5E5E5;
+	font-family: "Roboto";
+	font-weight: 700;
+	font-size: 0.7rem;
 	cursor: pointer;
 	border-radius: 1px;
 	${(props) => (props.margin ? `margin: ${props.margin};` : "")}
+	&:hover {
+			border: 1px solid #383D38;
+			color: #E5E5E5;
+			background-color: #383D38;
+		}
 `;
 
 //-- fixed float button --//

@@ -154,6 +154,90 @@ const createPostFB = (contents = "") => {
 	};
 };
 
+// middleware - 게시글 수정하기
+const updatePostFB = (post_id = null, post = {}) => {
+	return function (dispatch, getState, { history }) {
+    //들어오는 post id 값이 없을 때
+		if (!post_id) {
+      console.log("게시물 정보가 없습니다.");
+      return;
+    }
+		const postDB = firestore.collection("mgzn_post");
+		const _image = getState().image.preview;
+		// 수정하려는 글 index로 게시글 가져오기
+		const _post_index = getState().post.list.findIndex(
+			(post) => (post.id === post_id));
+		const _post = getState().post.list[_post_index];
+
+		// 프리뷰와 게시글 정보에 있는 이미지 같은지 ? 업로드 안 함 : 함
+    if (_image === _post.image_url) {
+      // 게시글 정보만 수정
+      postDB
+        .doc(post_id).update(post)
+        .then((doc) => {
+          dispatch(updatePost(post_id, { ...post }));
+          //set preview = null;
+          dispatch(imageActions.setPreview(null));
+          history.replace("/");
+        });
+      return;
+    } else {
+			// 글 작성 처럼 로그인한 유저 정보 가져와서
+      const user_id = getState().user.user.uid;
+      // 이미지를 data_url 방식으로 업로드
+      const _upload = storage
+        .ref(`images/${user_id}_${new Date().getTime()}`)
+        .putString(_image, "data_url");
+			// 글 신규작성처럼 이미지부터 업로드 후 url 가져오기
+			_upload.then((snapshot) => {
+				snapshot.ref
+				.getDownloadURL()
+				.then((url) => {
+					return url;
+				})
+				.then((url) => {
+					// id값에 해당하는 도큐먼트 수정/업데이트
+					postDB
+						.doc(post_id)
+						.update({ ...post, image_url: url })
+						.then((doc) => {
+							// 리덕스에 수정한 정보 넣기
+							dispatch(updatePost(post_id, { ...post, image_url: url }));
+							// set preview = null;
+							dispatch(imageActions.setPreview(null));
+							history.replace("/");
+						});
+				})
+				.catch((err) => {
+					window.alert("이미지 업로드에 실패했습니다.");
+					console.log("이미지 업로드에 실패했습니다.", err);
+				});
+			});
+		}
+	};
+};	
+
+// middleware - 게시글 삭제하기
+const deletePostFB = (post_id = null) => {
+	return function (dispatch, getState, { history }) {
+    //들어오는 post id 값이 없을 때
+		if (!post_id) {
+      console.log("삭제할 수 없는 게시물입니다.");
+      return;
+    }
+		const postDB = firestore.collection("mgzn_post");
+		// post id 찾아서 삭제, 리덕스에서도 삭제, 메인으로 돌아가기
+		postDB.doc(post_id).delete().then(res => {
+			dispatch(deletePost(post_id));
+			history.replace("/");
+	}).catch((err) => {
+		window.alert("게시글 삭제에 실패했습니다.");
+		console.log("게시글 삭제에 실패했습니다.", err);
+	})
+
+	}
+}
+
 // reducers
 export default handleActions(
 	{
@@ -167,6 +251,22 @@ export default handleActions(
 				//글 작성 후 배열의 맨 앞에다 데이터 넣어주기
 				draft.list.unshift(action.payload.post);
 		}),
+
+		[UPDATE_POST]: (state, action) =>
+			produce(state, (draft) => {
+				// postlist index 찾아서 수정된 포스트를 해당 위치에 넣어주기
+				let _index = draft.list.findIndex((post) => post.id === action.payload.post_id);
+				draft.list[_index] = { ...draft.list[_index], ...action.payload.post };
+		}),
+
+		[DELETE_POST]: (state, action) => produce(state, (draft) => {
+			let _index = draft.list.findIndex((post) => post.id === action.payload.post_id);
+			if(_index !== -1){
+				// index 위치의 post 삭제
+				draft.list.splice(_index, 1);
+			}
+			
+		}),
 	},
 	initialState
 );
@@ -176,10 +276,9 @@ const actionCreators = {
 	createPost,	
 	getPostFB,
 	createPostFB,
-	// editPost,	
-	// editPostFB,
+	updatePostFB,		
 	// getOnePostFB,
-	// deletePostFB,
+	deletePostFB,
 };
 
 export { actionCreators };

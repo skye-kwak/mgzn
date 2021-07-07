@@ -25,12 +25,22 @@ const PostList = (props) => {
 		<React.Fragment>
 			<Grid padding="20px 0px">
 				{post_list.map((post, index) => {
-					return (
-						<Grid 
-							key={post.id}>
-							<Post {...post}/>
-						</Grid>
-					);
+					{/* post의 작성자 정보와, 현재 로그인한 사용자정보; user_info가 같은지 비교, true일시 Post에 is_myPost 속성 전달  */}
+					if(post.user_info.user_id === user_info?.uid) {
+						return (
+							<Grid 
+								key={post.id}>
+								<Post {...post} is_myPost/>
+							</Grid>
+						);
+					} else {
+						return (
+							<Grid 
+								key={post.id}>
+								<Post {...post}/>
+							</Grid>
+						);
+					} 					
 				})}	
 				
 			</Grid>
