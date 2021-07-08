@@ -13,6 +13,7 @@ const MyPage = (props) => {
   // const is_session = sessionStorage.getItem(_session_key) ? true : false;
  
   React.useEffect(() => {
+    
   }, []);
   
 	return (

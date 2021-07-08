@@ -80,11 +80,11 @@ const PostWrite = (props) => {
 					multiline 
 					type="text"/>
 				<Upload />
-				{/* <Grid is_flex >
+				<Grid is_flex >
 					<Input type="radio" name="layout" id="layout1"/><label htmlFor="layout1">layout1</label>
 					<Input type="radio" name="layout" id="layout2"/><label htmlFor="layout2">layout2</label>
 					<Input type="radio" name="layout" id="layout3"/><label htmlFor="layout3">layout3</label>
-				</Grid> */}
+				</Grid>
 			</Grid>
 			{/* <Grid padding="16px">
         <Input

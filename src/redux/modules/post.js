@@ -29,11 +29,11 @@ const loading = createAction(
 
 
 // initialState ; 
-// postlist: [], 무한스크롤 페이징 위한 페이징 정보, 현재 로딩중인지 여부
+// postlist [], 무한스크롤 페이징 위한 페이징 정보, 현재 로딩중인지 여부
 const initialState = {
 	list: [],
-	paging: { start: null, next: null, size: 3 },
-	is_loading: false,
+  paging: { start: null, next: null, size: 3 },
+  is_loading: false,
 };
 
 // initial Post
@@ -57,39 +57,88 @@ const initialPost = {
 };
 
 // middleware - 게시글 가져오기
-const getPostFB = () => {
+const getPostFB = (start = null, size = 3) => {
   return function (dispatch, getState, { history }) {
-		// DB info
+		// for infinite scroll
+		// 페이징 정보 최우선, 시작정보 있는데 다음 정보 없을 때 == 리스트 끝, return;
+		let _paging = getState().post.paging;
+		if (_paging.start && !_paging.next) {
+      return;
+    }
+		dispatch(loading(true));
+
+		// DB info / query
     const postDB = firestore.collection("mgzn_post");
-    postDB.get().then((docs) => {
+		let query = postDB.orderBy("insert_dt", "desc").limit(3);
+		
+		//시작점 있을 때; startAt ; limit()의 경우 시작점 다음부터 나와야함
+    if(start){
+      query = query.startAt(start);
+    }
+		// limit 3으로 끊어 보여 줄 때, 4를 가져온다.
+		// 4만큼 오면 ; 다음 페이지 있음, 4 미만이면 ; 다음 페이지 없음
+    query.limit(size + 1).get().then((docs) => {
       let post_list = [];
+			// paging; db docs start/next. next항목; 다음 호출시 start param
+			let paging = {
+        start: docs.docs[0],
+        next: docs.docs.length === (size+1)? docs.docs[docs.docs.length - 1] : null,
+        size: size,
+      };
+
       docs.forEach((doc) => {
-        // db에 저장된 데이터와 리덕스에 저장되는 데이터 모양 맞춰주기
         let _post = doc.data();
-        let post = {
-            id: doc.id,
-            user_info: {
-                user_name: _post.user_name,
-                user_profile: _post.user_profile,
-                user_id: _post.user_id,
-								user_email: _post.user_email,
-            },
-            contents: _post.contents,
-            image_url: _post.image_url,
-            likes_count: _post.comment_cnt,
-            insert_dt: _post.insert_dt,
-						layout_type: _post.layout_type,
-        }
+
+        let post = Object.keys(_post).reduce(
+          (acc, cur) => {
+            if (cur.indexOf("user_") !== -1) {
+              return {
+                ...acc,
+                user_info: { ...acc.user_info, [cur]: _post[cur] },
+              };
+            }
+            return { ...acc, [cur]: _post[cur] };
+          },
+          { id: doc.id, user_info: {} }
+        );
 				//post를 post_list(initialState; [])에 넣어주기
         post_list.push(post);
       });
-      // 리스트 확인하기!
-      console.log(post_list);
-			// 리덕스에 넣어주기
-      dispatch(setPost(post_list));
+			// 가지고 오는 데이터 마지막 하나는 뺄 것;
+      // 다음 페이지 유무? 다음 페이지로 들어감 : 다음페이지 없음
+      post_list.pop();
+			// 리덕스에 넣어주기 + 무한 스크롤 시 페이징 정보도 같이 setPost
+      dispatch(setPost(post_list, paging));
     });
   };
 };
+// middleware - 게시글 하나만 가져오기
+// 상세페이지 
+const getOnePostFB = (id) => {
+  return function (dispatch, getState, { history }) {
+    const postDB = firestore.collection("mgzn_post");
+    postDB.doc(id).get()
+      .then((doc) => {
+				
+        let _post = doc.data();
+        let post = Object.keys(_post).reduce(
+          (acc, cur) => {
+            if (cur.indexOf("user_") !== -1) {
+              return {
+                ...acc,
+                user_info: { ...acc.user_info, [cur]: _post[cur] },
+              };
+            }
+            return { ...acc, [cur]: _post[cur] };
+          },
+          { id: doc.id, user_info: {} }
+        );
+				// 글 하나지만 배열 속에 있어야 함, 주의;
+        dispatch(setPost([post]));
+      });
+  };
+};
+
 
 // middleware - 게시글 저장하기
 const createPostFB = (contents = "") => {
@@ -243,8 +292,28 @@ export default handleActions(
 	{
 		[SET_POST]: (state, action) =>
 			produce(state, (draft) => {
-				draft.list.push(...action.payload.post_list); 
+				draft.list.push(...action.payload.post_list);
+				draft.paging = action.payload.paging;
+				draft.is_loading = false;
+				// // 기존 데이터 넣어주기, 
+				// draft.list = draft.list.reduce((acc, cur) => {
+				// 	if (acc.findIndex((a) => a.id === cur.id) === -1) {
+				// 		return [...acc, cur];
+				// 	} else {
+				// 		acc[acc.findIndex((a) => a.id === cur.id)] = cur;
+				// 		return acc;
+				// 	}
+				// }, []);
+
+				// action.payload.paging? 넣어주기
+				// if (action.payload.paging) {
+				// draft.paging = action.payload.paging;
+				// }
 		}),
+		[LOADING]: (state, action) =>
+      produce(state, (draft) => {
+        draft.is_loading = action.payload.is_loading;
+      }),
 
 		[CREATE_POST]: (state, action) =>
 			produce(state, (draft) => {
@@ -275,9 +344,9 @@ const actionCreators = {
 	setPost,
 	createPost,	
 	getPostFB,
+	getOnePostFB,
 	createPostFB,
 	updatePostFB,		
-	// getOnePostFB,
 	deletePostFB,
 };
 

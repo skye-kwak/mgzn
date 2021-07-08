@@ -2,15 +2,25 @@ import React from "react";
 import styled from "styled-components";
 
 const Grid = (props) => {
-  const { is_flex, width, margin, padding, bg_color, children, center, _onClick, is_myPost } = props;
+  const { 
+    is_flex, 
+    width, 
+    margin, 
+    padding, 
+    bg_color, 
+    children, 
+    center, 
+    _onClick, 
+    is_myPost } = props;
 
   const styles = {
-      is_flex: is_flex,
-      width: width,
-      margin: margin,
-      padding: padding,
-      bg_color: bg_color,
-      center: center,
+    is_flex: is_flex,
+    width: width,
+    margin: margin,
+    padding: padding,
+    bg_color: bg_color,
+    center: center,
+    is_myPost: is_myPost
   };
   return (
     <React.Fragment>
@@ -27,6 +37,7 @@ Grid.defaultProps = {
   margin: false,
   bg_color: false,
   center: false,
+  is_myPost: false,
   _onClick: () => {},
 };
 
