@@ -2,7 +2,6 @@ import { createAction, handleActions } from "redux-actions";
 import { produce } from "immer";
 // import firebase, firestore & storage config
 import { firestore, storage } from "../../shared/firebase";
-import firebase from "firebase/app";
 // insert dt
 import moment from "moment";
 // imageActions for uploading image
@@ -14,6 +13,7 @@ const CREATE_POST = "CREATE_POST";
 const UPDATE_POST = "UPDATE_POST";
 const DELETE_POST = "DELETE_POST";
 const LOADING = "LOADING";
+const LIKE_TOGGLE = "LIKE_TOGGLE";
 
 // create actions
 const setPost = createAction(
@@ -26,6 +26,10 @@ const deletePost = createAction(
 	DELETE_POST, (post_id) => ({post_id}));
 const loading = createAction(
 	LOADING, (is_loading) => ({is_loading}));
+const likeToggle = createAction(LIKE_TOGGLE, (post_id, is_liked = null) => ({
+	post_id,
+	is_liked,
+}));
 
 
 // initialState ; 
@@ -53,6 +57,7 @@ const initialPost = {
 	contents: "",
 	likes_count: 0,
 	layout_type: "a",
+	is_liked: false,
 	insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
 };
 
@@ -108,7 +113,11 @@ const getPostFB = (start = null, size = 3) => {
       // 다음 페이지 유무? 다음 페이지로 들어감 : 다음페이지 없음
       post_list.pop();
 			// 리덕스에 넣어주기 + 무한 스크롤 시 페이징 정보도 같이 setPost
-      dispatch(setPost(post_list, paging));
+			if (getState().user.user){
+				dispatch(setIsLiked(post_list, paging));
+			}else{
+				dispatch(setPost(post_list, paging));
+			}
     });
   };
 };
@@ -134,7 +143,7 @@ const getOnePostFB = (id) => {
           { id: doc.id, user_info: {} }
         );
 				// 글 하나지만 배열 속에 있어야 함, 주의;
-        dispatch(setPost([post]));
+        dispatch(setIsLiked([post]));
       });
   };
 };
@@ -163,7 +172,7 @@ const createPostFB = (contents = "", layout_type ="a") => {
 		// console.log(_image);
     // console.log(typeof _image);
 		if(!_image){
-			window.alert('이미지가 필요해요!');
+			window.alert('이미지 파일을 업로드해 주세요.');
 			return;
 		}
 		//파일 이름 유저 id, 현재 시간 밀리초로 넣어줌
@@ -263,7 +272,6 @@ const updatePostFB = (post_id = null, post = {}) => {
 		}
 	};
 };	
-
 // middleware - 게시글 삭제하기
 const deletePostFB = (post_id = null) => {
 	return function (dispatch, getState, { history }) {
@@ -285,6 +293,118 @@ const deletePostFB = (post_id = null) => {
 	}
 }
 
+// middleware - 좋아요 토글
+const toggleLikeFB = (post_id) => {
+	return function (dispatch, getState, { history }) {
+		if (!getState().user.user) {
+			return;
+		}
+
+		const postDB = firestore.collection("mgzn_post");
+		const likeDB = firestore.collection("mgzn_like");
+
+		// 가져온 post id 배열 내 인덱스 찾아서 정보 가지고 오고, 현재 로그인한 user id 가져오기
+		const _index = getState().post.list.findIndex((post) => post.id === post_id);
+		const _post = getState().post.list[_index];
+		const user_id = getState().user.user.uid;
+
+		// 좋아요한 상태라면 해제하기
+		// likeDB에서 데이터 지우고 postDB에서 likes_count -1
+		if (_post.is_liked) {
+			likeDB
+				.where("post_id", "==", _post.id)
+				.where("user_id", "==", user_id)
+				.get()
+				.then((docs) => {
+					let batch = firestore.batch();
+					docs.forEach((doc) => {
+						batch.delete(likeDB.doc(doc.id));
+					});
+
+					batch.update(postDB.doc(post_id), {
+						likes_count:
+							_post.likes_count - 1 < 1 ? _post.likes_count : _post.likes_count - 1,
+					});
+
+					batch.commit().then(() => {
+						dispatch(likeToggle(post_id, !_post.is_liked));
+					});
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+		} else {
+			// 좋아요 해제 상태라면 좋아요 하기
+			// likeDB에 해당 데이터 넣고 postDB에서 likes_count +1
+			likeDB.add({ post_id: post_id, user_id: user_id }).then(doc => {
+				postDB.doc(post_id).update({ likes_count: _post.likes_count + 1 }).then(doc => {
+					// 이제 리덕스 데이터를 바꿔줘요!
+					dispatch(likeToggle(post_id, !_post.is_liked));
+				});
+			});
+		}
+	};
+};
+
+// 좋아요 리스트를 가져와서 리덕스에 넣어주는 함수
+const setIsLiked = (_post_list, paging) => {
+	return function (dispatch, getState, { history }) {
+		if (!getState().user.is_loggedIn) {
+			return;
+		}
+		// 이제 좋아요 리스트를 가져올거예요 :)
+		// 1. post_list에 들어있는 게시물의 좋아요 리스트를 가져오고,
+		// 2. 지금 사용자가 좋아요를 했는 지 확인해서,
+		// 3. post의 is_liked에 넣어줄거예요!
+		const likeDB = firestore.collection("mgzn_like");
+		// post_list의 id 배열을 만들어요
+		const post_ids = _post_list.map((post) => post.id);
+
+		// 저는 post_id를 기준으로 가져올거예요.
+		let like_query = likeDB.where("post_id", "in", post_ids);
+		like_query.get().then((like_docs) => {
+			// 이제 가져온 like_docs에서 로그인한 유저가 좋아요했는 지 확인해볼까요?
+			// 좋아요했는 지 확인한 후, post의 is_liked를 true로 바꿔주면 끝입니다! :)
+			// 주의) 여기에서 데이터를 정제할건데, 여러 가지 방법으로 데이터를 정제할 수 있어요.
+			// 지금은 우리한테 익숙한 방법으로 한 번 해보고, 나중에 다른 방법으로도 해보세요 :)
+			// 파이어스토어에서 가져온 데이터를 {}로 만들어줄거예요.
+			let like_list = {};
+			like_docs.forEach((doc) => {
+				// like_list에 post_id를 키로 쓰는 {}!
+				// like_list[doc.data().post_id] :파이어스토어에서 가져온 데이터 하나 (=doc)의 data중 post_id를 키로 씁니다.
+				// [ // <- 대괄호 열었다! 밸류는 배열로 할거예요!
+				//   ...like_list[doc.data().post_id], // 해당 키에 밸류가 있다면, 그 밸류를 그대로 넣어주기
+				//   doc.data().user_id, // user_id를 배열 안에 넣어줘요!
+				// ]; <- 대괄호 닫기!
+				// like_list에 post_id로 된 키가 있다면?
+				// 있으면 배열에 기존 배열 + 새로운 user_id를 넣고,
+				// 없으면 새 배열에 user_id를 넣어줍니다! :)
+				if (like_list[doc.data().post_id]) {
+					like_list[doc.data().post_id] = [
+						...like_list[doc.data().post_id],
+						doc.data().user_id,
+					];
+				} else {
+					like_list[doc.data().post_id] = [doc.data().user_id];
+				}
+			});
+			// 아래 주석을 풀고 콘솔로 확인해보세요!
+			// console.log(like_list);
+			// user_id 가져오기!
+			const user_id = getState().user.user.uid;
+			let post_list = _post_list.map((post) => {
+				// 만약 p 게시글을 좋아요한 목록에 로그인한 사용자 id가 있다면?
+				if (like_list[post.id] && like_list[post.id].indexOf(user_id) !== -1) {
+					// is_liked만 true로 바꿔서 return 해줘요!
+					return { ...post, is_liked: true };
+				}
+				return post;
+			});
+			dispatch(setPost(post_list, paging));
+		});
+	};
+};
+	
 // reducers
 export default handleActions(
 	{
@@ -331,8 +451,14 @@ export default handleActions(
 			if(_index !== -1){
 				// index 위치의 post 삭제
 				draft.list.splice(_index, 1);
-			}
-			
+			}			
+		}),
+
+		[LIKE_TOGGLE]: (state, action) =>
+		produce(state, (draft) => {
+			let _index = draft.list.findIndex((post) => post.id === action.payload.post_id);        
+      draft.list[_index].is_liked = action.payload.is_liked;
+		
 		}),
 	},
 	initialState
@@ -346,6 +472,7 @@ const actionCreators = {
 	createPostFB,
 	updatePostFB,		
 	deletePostFB,
+	toggleLikeFB,
 };
 
 export { actionCreators };

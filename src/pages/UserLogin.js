@@ -10,6 +10,7 @@ const UserLogin = (props) => {
 	const [user_email, setUserEmail] = React.useState("");
 	const [user_password, setUserPassword] = React.useState("");
 
+	const is_invalidInput = (user_email === "") || (user_password === "") ? true : false
 
 	const login= () => {
 		// middleware 보내기 전 기본적인 것들 확인하기 
@@ -41,7 +42,7 @@ const UserLogin = (props) => {
 							placeholder="이메일 주소를 입력하세요."
 							_onChange={(e) => {
 								setUserEmail(e.target.value);
-							}}
+							}}			
 						/>
 					</Grid>
 					<Grid padding="16px 0px">
@@ -52,13 +53,26 @@ const UserLogin = (props) => {
 							_onChange={(e) => {
 								setUserPassword(e.target.value);
 							}}
+							value={user_password}
+							is_submit
+            	onSubmit={login}
 						/>
 					</Grid>
 				</form>
-				<Button 
+				{is_invalidInput ? (
+					<Button 
 					margin="20px 0px" 
 					text="LOG IN"
-					_onClick={login} /> 
+					_onClick={login}
+					disabled /> 
+				) : (
+					<Button 
+					margin="20px 0px" 
+					text="LOG IN"
+					_onClick={login}
+					 /> 
+				)}
+					
 			</Grid>
 		</React.Fragment>
 	)

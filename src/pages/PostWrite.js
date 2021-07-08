@@ -21,6 +21,10 @@ const PostWrite = (props) => {
 	// useState; setState(레이아웃형식)
 	const [layout_type, setLayoutType] = React.useState(_post ? _post.layout_type : "");
 
+	const is_invalidInput = 
+		(contents === "") || 
+		(!(layout_type === "a" || layout_type === "b" || layout_type === "c")) ? true : false
+
 	const changedContents = (e) => {setContents(e.target.value);};
 	const changedLayoutType = (e) => {setLayoutType(e.target.value);};
 	
@@ -69,14 +73,14 @@ const PostWrite = (props) => {
 	return (
 		<React.Fragment>
 			<Grid padding="16px">
-				<Text type="heading" bold size="2.0rem">SHARE•YOUR•MOMENTS</Text>
+				<Text type="heading" bold size="2.0rem">WRITE•HERE</Text>
 			</Grid>
-			<Grid padding="16px">
+			<Grid padding="0px 16px">
 				<Input 
 					value={contents}
           _onChange={changedContents}
-					placeholder="게시글 작성" 
-					label="게시글 내용"
+					placeholder="게시글을 작성해 주세요." 
+					label=""
 					multiline 
 					type="text"/>
 				<Upload />
@@ -91,13 +95,14 @@ const PostWrite = (props) => {
           type="text"
           value={layout_type}
           _onChange={changedLayoutType}
-          label="레이아웃 타입"
+          label="Layout Type"
           placeholder="a, b, c 중 하나를 골라주세요."
         />
       </Grid>
-			
 			<Grid>
-			<Text type="heading" bold size="1.0rem">PREVIEW</Text>
+				<Grid padding="0px 16px">
+					<Text type="heading" bold size="1.0rem">PREVIEW</Text>
+				</Grid>
 				<Image 
 					shape="square"
 					src={ preview ? preview : "https://firebasestorage.googleapis.com/v0/b/react-assignment-27df2.appspot.com/o/images%2Fyana_hurskaya-HpQFPnCK7_A-unsplash.jpg?alt=media&token=7b7dec91-e2ef-4493-943a-a7e60fc1cba6"}/>
@@ -105,16 +110,34 @@ const PostWrite = (props) => {
 
 			<Grid padding="16px">
 				{is_editing ? (
-					<Button 
+					is_invalidInput ? (
+						<Button 
 						margin="20px 0px" 
 						text="UPDATE" 
-						_onClick={updatePost} />
-				) : (
-					<Button 
+						_onClick={updatePost}
+						disabled							
+						/>
+					) : (
+						<Button 
+						margin="20px 0px" 
+						text="UPDATE" 
+						_onClick={updatePost}							
+						/>
+					)) : (
+					is_invalidInput ? (
+						<Button 
 						margin="20px 0px" 
 						text="SAVE" 
-						_onClick={createPost} />
-					)}	
+						_onClick={createPost}
+						disabled							
+						/>
+					) : (
+						<Button 
+						margin="20px 0px" 
+						text="SAVE" 
+						_onClick={createPost}						
+						/>
+					))}	
 			</Grid>
 		</React.Fragment>
 	)

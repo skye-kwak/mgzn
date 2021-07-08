@@ -115,7 +115,7 @@ const logoutFB = () => {
   };
 };
 
-// reducer
+// reducers
 export default handleActions(
 	{ 
 		[LOG_OUT]: (state, action) =>

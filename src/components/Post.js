@@ -9,6 +9,7 @@ import { actionCreators as postActions } from "../redux/modules/post";
 
 const Post = (props) => {
 	const dispatch = useDispatch();
+
 	return (
 		<React.Fragment>
 			<Grid padding="16px 0px">
@@ -59,42 +60,49 @@ const Post = (props) => {
 					</Grid>									
 				</Grid>
 
-				{/* layout type이 a일 때 */}
+				{/* layout type이 a일 때 ••• */}
         {props.layout_type === "a" && (
           <React.Fragment>
 						<Grid padding="0px 16px">
 							<Text size="0.9rem">{props.contents}</Text>
 						</Grid>
 						<Grid is_flex padding="0px 16px 16px">
-							<Grid is_flex width="auto">
-								<Text margin="0px" bold size="0.9rem">
-								{props.likes_count} Likes •••
+							<Grid is_flex>
+								<Text margin="0px" bold size="0.9rem" >
+									{props.likes_count} Likes 
 								</Text>
 								<LikeButton
-            // _onClick={(e) => {
-            //   e.preventDefault();
-            //   e.stopPropagation();
-            //   dispatch(postActions.toggleLikeFB(props.id));
-            // }}
-            // is_like={props.is_like}
-          ></LikeButton>
+									_onClick={(e) => {
+										e.preventDefault();
+										e.stopPropagation();
+										dispatch(postActions.toggleLikeFB(props.id));}}
+									is_liked={props.is_liked}
+									/>
 							</Grid>
 						</Grid>
-            <Grid>
-              <Image shape="square" src={props.image_url} />
-            </Grid>
-						
+						<Grid>
+							<Image shape="square" src={props.image_url} />
+						</Grid>						
           </React.Fragment>
         )}
 
-        {/* layout type이 b일 때 */}
+        {/* layout type이 b일 때  ••• */}
         {props.layout_type === "b" && (
           <React.Fragment>
             <Grid is_flex alignType="default">
               <Grid width="50%" padding="4px 16px">
-								<Text margin="0px" bold size="0.9rem" >
-									{props.likes_count} Likes •••
-								</Text>
+								<Grid is_flex>
+									<Text margin="0px" bold size="0.9rem" >
+										{props.likes_count} Likes
+									</Text>
+									<LikeButton
+										_onClick={(e) => {
+											e.preventDefault();
+											e.stopPropagation();
+											dispatch(postActions.toggleLikeFB(props.id));}}
+										is_liked={props.is_liked}
+										/>
+									</Grid>
                 <Text size="0.9rem">{props.contents}</Text>
               </Grid>
               <Image shape="rectangle" src={props.image_url} />
@@ -102,15 +110,24 @@ const Post = (props) => {
           </React.Fragment>
         )}
 
-        {/* layout type이 c일 때 */}
+        {/* layout type이 c일 때  ••• */}
         {props.layout_type === "c" && (
           <React.Fragment>
             <Grid is_flex alignType="default">
               <Image shape="rectangle" src={props.image_url} />
-              <Grid width="50%" padding="16px">
-								<Text margin="0px" bold size="0.9rem" >
-									{props.likes_count} Likes •••
-								</Text>
+              <Grid width="50%" padding="4px 16px">
+								<Grid is_flex>
+									<Text margin="0px" bold size="0.9rem" >
+										{props.likes_count} Likes
+									</Text>
+									<LikeButton
+										_onClick={(e) => {
+											e.preventDefault();
+											e.stopPropagation();
+											dispatch(postActions.toggleLikeFB(props.id));}}
+										is_liked={props.is_liked}
+										/>
+									</Grid>
                 <Text size="0.9rem">{props.contents}</Text>
               </Grid>
             </Grid>
@@ -135,6 +152,7 @@ Post.defaultProps = {
 	layout_type: "a",
 	insert_dt: "2021-07-01 00:00:00",
 	is_myPost: false,
+	is_liked: false,
 };
 
 export default Post;

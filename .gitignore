@@ -33,3 +33,6 @@ static/20-0291 Outrigger Virtual Backgrounds_Maldives_2.jpeg
 static/105491093_2644047589211568_7763714784214134794_n.png
 static/105491093_2644047589211568_7763714784214134794_n.jpeg
 src/shared/firebase.js
+.firebaserc
+.firebase/hosting.YnVpbGQ.cache
+firebase.json

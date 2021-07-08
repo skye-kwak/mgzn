@@ -13,6 +13,12 @@ const UserSignup = (props) => {
 	const [user_password, setUserPassword] = React.useState("");
 	const [user_confirmPassword, setUserConfirmPassword] = React.useState("");
 
+	const is_invalidInput = 
+		(user_email === "") || 
+		(user_name === "") ||
+		(user_password === "") ||
+		(user_confirmPassword === "") ? true : false
+
 	// signup function for submit button
 	const signup = () => {
 		// middleware 보내기 전 기본적인 것들 확인하기 
@@ -80,14 +86,25 @@ const UserSignup = (props) => {
 						_onChange={(e) => {
 							setUserConfirmPassword(e.target.value);
 						}}
+						value={user_confirmPassword}
+						is_submit
+            onSubmit={signup}
 					/>
 				</Grid>
 				</form>
-				<Button 
+				{is_invalidInput ? (
+					<Button 
 					margin="20px 0px" 
 					text="SIGN UP" 
 					_onClick={signup}
-				/>
+					disabled /> 
+				) : (
+					<Button 
+					margin="20px 0px" 
+					text="SIGN UP" 
+					_onClick={signup}
+					 /> 
+				)}
 			</Grid>
 		</React.Fragment>
 	)

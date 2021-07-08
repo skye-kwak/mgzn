@@ -44,7 +44,7 @@ Image.defaultProps = {
 };
 
 const ImageDefault = styled.div`
-  --size: ${(props) => props.size}px;
+  --size: ${(props) => props.size};
   width: var(--size);
   height: var(--size);
   background-image: url("${(props) => props.src}");

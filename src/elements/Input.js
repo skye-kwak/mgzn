@@ -13,7 +13,7 @@ const Input = (props) => {
 		name, 
 		id, 
 		value,
-		is_enterPressed,
+		is_submit,
     onSubmit, 
 	} = props;
 
@@ -45,19 +45,30 @@ const Input = (props) => {
 		<React.Fragment>
 			<Grid>
 				{label && <Text margin="0px">{label}</Text>}
-				<ElementInput
-					type={type} 
-					placeholder={placeholder} 
-					onChange={_onChange} 
-					name={name}
-					id={id} 
-					value={value}
-					onKeyPress={(e) => {
-						if (e.key === "Enter") {
-							onSubmit(e);
-						}
-					}}
+				{is_submit ? (
+					<ElementInput
+						type={type} 
+						placeholder={placeholder} 
+						onChange={_onChange}
+						value={value} 
+						name={name}
+						id={id} 
+						// value={value}
+						onKeyPress={(e) => {
+							if (e.key === "Enter") {
+								onSubmit(e);
+							}
+						}}
 					/>
+				) : (
+					<ElementInput
+						type={type} 
+						placeholder={placeholder} 
+						onChange={_onChange} 
+						name={name}
+						id={id} 
+						/>
+				)}
 			</Grid>
 		</React.Fragment>
 	);
@@ -69,11 +80,11 @@ Input.defaultProps = {
 	placeholder: "",
 	type: "text",
 	value: "",
+	is_submit: false,
 	_onChange: () => {},
+	onSubmit: () => {},
 	name: null,
-	id: null,
-	is_enterPressed: false,
-  onSubmit: () => {},
+	id: null, 
 };
 
 const ElementTextarea = styled.textarea`
@@ -94,8 +105,7 @@ const ElementInput = styled.input`
 	box-sizing: border-box;
 `;
 
-const ElementRadio = styled.input`
-
-`;
+// const ElementRadio = styled.input`
+// `;
 
 export default Input;
