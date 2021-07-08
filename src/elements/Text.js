@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Text = (props) => {
-  const { bold, color, size, children, margin, type, inline, _onClick } = props;
+  const { bold, color, size, children, margin, type, inline, _onClick,} = props;
   const styles = {
     bold: bold, 
     color: color, 

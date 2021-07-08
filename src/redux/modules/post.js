@@ -138,10 +138,8 @@ const getOnePostFB = (id) => {
       });
   };
 };
-
-
 // middleware - 게시글 저장하기
-const createPostFB = (contents = "") => {
+const createPostFB = (contents = "", layout_type ="a") => {
 	return function (dispatch, getState, { history }) {
 		const postDB = firestore.collection("mgzn_post");
 		//현재 로그인 한 작성자 정보 가져오기
@@ -157,6 +155,7 @@ const createPostFB = (contents = "") => {
 		const _post = {
       ...initialPost,
       contents: contents,//param
+			layout_type: layout_type,
       insert_dt: moment().format("YYYY-MM-DD hh:mm:ss"),
     };
 		//프리뷰에 띄운 이미지 가져오기
@@ -202,7 +201,6 @@ const createPostFB = (contents = "") => {
 		});
 	};
 };
-
 // middleware - 게시글 수정하기
 const updatePostFB = (post_id = null, post = {}) => {
 	return function (dispatch, getState, { history }) {

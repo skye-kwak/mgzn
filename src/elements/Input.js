@@ -17,13 +17,13 @@ const Input = (props) => {
     onSubmit, 
 	} = props;
 
-	if (type ==="radio"){
-		return (
-			<Grid>
-				<ElementRadio/>
-			</Grid>
-		);
-	}
+	// if (type ==="radio"){
+	// 	return (
+	// 		<Grid>
+	// 			<input/>
+	// 		</Grid>
+	// 	);
+	// }
 
 	if (multiline){
 		return (
@@ -46,8 +46,18 @@ const Input = (props) => {
 			<Grid>
 				{label && <Text margin="0px">{label}</Text>}
 				<ElementInput
-					type={type} placeholder={placeholder} onChange={_onChange} name={name}
-					id={id} />
+					type={type} 
+					placeholder={placeholder} 
+					onChange={_onChange} 
+					name={name}
+					id={id} 
+					value={value}
+					onKeyPress={(e) => {
+						if (e.key === "Enter") {
+							onSubmit(e);
+						}
+					}}
+					/>
 			</Grid>
 		</React.Fragment>
 	);
@@ -86,7 +96,6 @@ const ElementInput = styled.input`
 
 const ElementRadio = styled.input`
 
-		
 `;
 
 export default Input;

@@ -1,5 +1,6 @@
 import React from "react";
 import { Grid, Image, Text, Button } from "../elements";
+import { LikeButton } from "../components"
 // store; history
 import { history } from "../redux/configStore";
 // redux
@@ -10,32 +11,20 @@ const Post = (props) => {
 	const dispatch = useDispatch();
 	return (
 		<React.Fragment>
-			<Grid>
-				{/* user and post info */}
+			<Grid padding="16px 0px">
 				<Grid is_flex padding="16px">
 					<Grid is_flex width="auto">
+						{/* user info */}
 						<Image shape="circle" size="40px"/>
-						<Text bold size="0.9rem">{props.user_info.user_name}</Text>
-						<Text size="0.9rem" margin="0px 0px 0px 10px">{props.user_info.user_email}</Text>
-					</Grid>		
-					<Grid is_flex width="auto">
-						<Text size="0.9rem">{props.insert_dt}</Text>
-					</Grid>
-				</Grid>
-				{/* image */}
-				<Grid>
-					<Image shape="square" src={props.image_url}/>
-				</Grid>
+						<Text bold size="0.9rem" margin="0px 12px">{props.user_info.user_name}</Text>
+						<Text size="0.9rem">{props.user_info.user_email}</Text>	
+					</Grid>			
 
-				<Grid is_flex padding="16px">
+						{/* insert d/t */}
 					<Grid is_flex width="auto">
-						<Text margin="0px" bold size="0.9rem">
-						{props.likes_count} Likes 
-						</Text>
-					</Grid>
-					{/* edit/delete button */}
+						{/* edit/delete button */}
 					<Grid is_flex width="auto">
-					{props.is_myPost && (
+						{props.is_myPost && (
 							<React.Fragment>
 								<Button
 									width="auto"
@@ -52,7 +41,7 @@ const Post = (props) => {
 									}} />
 								<Button
 									width="auto"
-									margin="4px"
+									margin="4px 8px 4px 4px"
 									padding="4px"
 									type="smallBtn"
 									text="DELETE"
@@ -63,16 +52,70 @@ const Post = (props) => {
 										// 게시글 삭제하기
 										dispatch(postActions.deletePostFB(props.id));
 									}} />
-								</React.Fragment>
-						)}
-					</Grid>
+								</React.Fragment>								
+							)}
+						</Grid>					
+						<Text size="0.9rem">{props.insert_dt}</Text>
+					</Grid>									
 				</Grid>
 
-				<Grid padding="0px 16px 32px">
-					<Text bold size="0.9rem">{props.user_info.user_name}</Text>
-					<Text size="0.9rem">{props.contents}</Text>
-				</Grid>
-				
+				{/* layout type이 a일 때 */}
+        {props.layout_type === "a" && (
+          <React.Fragment>
+						<Grid padding="0px 16px">
+							<Text size="0.9rem">{props.contents}</Text>
+						</Grid>
+						<Grid is_flex padding="0px 16px 16px">
+							<Grid is_flex width="auto">
+								<Text margin="0px" bold size="0.9rem">
+								{props.likes_count} Likes •••
+								</Text>
+								<LikeButton
+            // _onClick={(e) => {
+            //   e.preventDefault();
+            //   e.stopPropagation();
+            //   dispatch(postActions.toggleLikeFB(props.id));
+            // }}
+            // is_like={props.is_like}
+          ></LikeButton>
+							</Grid>
+						</Grid>
+            <Grid>
+              <Image shape="square" src={props.image_url} />
+            </Grid>
+						
+          </React.Fragment>
+        )}
+
+        {/* layout type이 b일 때 */}
+        {props.layout_type === "b" && (
+          <React.Fragment>
+            <Grid is_flex alignType="default">
+              <Grid width="50%" padding="4px 16px">
+								<Text margin="0px" bold size="0.9rem" >
+									{props.likes_count} Likes •••
+								</Text>
+                <Text size="0.9rem">{props.contents}</Text>
+              </Grid>
+              <Image shape="rectangle" src={props.image_url} />
+            </Grid>
+          </React.Fragment>
+        )}
+
+        {/* layout type이 c일 때 */}
+        {props.layout_type === "c" && (
+          <React.Fragment>
+            <Grid is_flex alignType="default">
+              <Image shape="rectangle" src={props.image_url} />
+              <Grid width="50%" padding="16px">
+								<Text margin="0px" bold size="0.9rem" >
+									{props.likes_count} Likes •••
+								</Text>
+                <Text size="0.9rem">{props.contents}</Text>
+              </Grid>
+            </Grid>
+          </React.Fragment>
+        )}	
 			</Grid>
 		</React.Fragment>
 	)

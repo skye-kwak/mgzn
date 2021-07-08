@@ -19,7 +19,7 @@ const PostWrite = (props) => {
 	// useState ; setState(인풋 텍스트필드 입력값), _post? 수정시 기존 작성내용 : 신규작성 비어있는 필드
 	const [contents, setContents] = React.useState(_post ? _post.contents : "");
 	// useState; setState(레이아웃형식)
-	const [layout_type, setLayoutType] = React.useState('');
+	const [layout_type, setLayoutType] = React.useState(_post ? _post.layout_type : "");
 
 	const changedContents = (e) => {setContents(e.target.value);};
 	const changedLayoutType = (e) => {setLayoutType(e.target.value);};
@@ -30,7 +30,7 @@ const PostWrite = (props) => {
 	}
 	// 함수; 글 수정하기, 리덕스 미들웨어 연동
 	const updatePost = () => {
-		dispatch(postActions.updatePostFB(post_id, {contents: contents}));
+		dispatch(postActions.updatePostFB(post_id, {contents: contents, layout_type: layout_type} ));
 	}
 
 	// image Preview
@@ -80,13 +80,13 @@ const PostWrite = (props) => {
 					multiline 
 					type="text"/>
 				<Upload />
-				<Grid is_flex >
+				{/* <Grid is_flex >
 					<Input type="radio" name="layout" id="layout1"/><label htmlFor="layout1">layout1</label>
 					<Input type="radio" name="layout" id="layout2"/><label htmlFor="layout2">layout2</label>
 					<Input type="radio" name="layout" id="layout3"/><label htmlFor="layout3">layout3</label>
-				</Grid>
+				</Grid> */}
 			</Grid>
-			{/* <Grid padding="16px">
+			<Grid padding="16px">
         <Input
           type="text"
           value={layout_type}
@@ -94,7 +94,7 @@ const PostWrite = (props) => {
           label="레이아웃 타입"
           placeholder="a, b, c 중 하나를 골라주세요."
         />
-      </Grid> */}
+      </Grid>
 			
 			<Grid>
 			<Text type="heading" bold size="1.0rem">PREVIEW</Text>

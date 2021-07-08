@@ -22,6 +22,13 @@ const Image = (props) => {
 			</AspectOutter>
 		)
 	}
+	if(shape === "rectangle"){
+		return (
+			<AspectOutter>
+				<AspectInnerRect {...styles}></AspectInnerRect>
+			</AspectOutter>
+		)
+	}
 
 	return (
 		<React.Fragment>
@@ -57,6 +64,15 @@ const AspectInner = styled.div`
 	background-size: cover;
 `;
 
+const AspectInnerRect = styled.div`
+	position: relative;
+	padding-top: 150%;
+	overflow: hidden;
+	background-image: url("${(props) => props.src}");
+	background-size: cover;
+`;
+
+
 const ImageCircle = styled.div`
 	display: inline-block;
 	--size: ${(props) => props.size};
@@ -65,7 +81,6 @@ const ImageCircle = styled.div`
 	border-radius: var(--size);
 	background-image: url("${(props) => props.src}");
 	background-size: cover;
-	margin: 4px;
 `;
 
 export default Image;
